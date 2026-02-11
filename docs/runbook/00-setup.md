@@ -2,16 +2,89 @@
 
 ## المتطلبات
 - Node.js 18+
-- حساب Supabase
-- حساب Vercel
+- Docker (لتشغيل Supabase CLI محليًا)
+- Supabase CLI
+- حساب Supabase (Cloud Project)
+- حساب Vercel (للنشر لاحقًا)
 
-## المتغيرات (Environment)
-أنشئ ملف `.env.local` داخل `apps/web` بناءً على:
-- `apps/web/.env.example`
+## 1) إعداد Supabase CLI
+```bash
+npm install -g supabase
+supabase --version
+```
 
-## تشغيل الواجهة محليًا
+## 2) ربط المشروع مع Supabase
+من جذر المشروع:
+```bash
+supabase login
+supabase link --project-ref <YOUR_PROJECT_REF>
+```
+
+## 3) تشغيل قاعدة البيانات محليًا (اختياري لكن موصى به)
+```bash
+supabase start
+```
+
+## 4) تشغيل المايجريشن + البذور (Seed)
+### محليًا
+```bash
+supabase db reset
+```
+> الأمر ينفّذ كل ملفات `supabase/migrations` ثم `supabase/seed`.
+
+### على مشروع Supabase السحابي
+```bash
+supabase db push
+supabase db seed
+```
+
+## 5) التحقق من التنفيذ (SQL Validation)
+نفّذ التالي من SQL Editor في Supabase Dashboard أو عبر `psql`:
+
+```sql
+-- الجداول الأساسية
+select table_name
+from information_schema.tables
+where table_schema = 'public'
+  and table_name in (
+    'departments','roles','profiles','templates','template_versions',
+    'items','item_field_values','requests','notification_log','audit_log','system_settings'
+  )
+order by table_name;
+
+-- تفعيل RLS على الجداول المطلوبة
+select tablename, rowsecurity
+from pg_tables
+where schemaname = 'public'
+  and tablename in ('profiles','items','requests','templates','template_versions')
+order by tablename;
+
+-- السياسات المعرفة
+select schemaname, tablename, policyname, cmd
+from pg_policies
+where schemaname = 'public'
+  and tablename in ('profiles','items','requests','templates','template_versions')
+order by tablename, policyname;
+
+-- فحص seed للإعدادات
+select id, send_window_start, send_window_end, timezone
+from public.system_settings;
+```
+
+## 6) متغيرات البيئة للواجهة (لاحقًا)
+أنشئ ملف `.env.local` داخل `apps/web`:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (للاستخدام في server helpers فقط)
+
+## 7) تشغيل الواجهة محليًا (اختياري في هذه المرحلة)
 داخل `apps/web`:
-- `npm install`
-- `npm run dev`
+```bash
+npm install
+npm run dev
+```
 
-> ملاحظة: تم تجهيز ملفات هيكلية فقط. توصيل Supabase + RLS + Edge Functions يتم في مراحل التنفيذ التالية.
+## ملاحظات Supabase Dashboard (خطوات يدوية)
+- من **Authentication > Users** أنشئ مستخدمين اختباريين.
+- أضف لكل مستخدم سجلًا مقابلًا في جدول `public.profiles` مع `department_id` و`role_code` صحيحين.
+- اختبر RLS عبر SQL Editor باستخدام `set local role authenticated;` و JWT Claims أو من خلال التطبيق لاحقًا.
