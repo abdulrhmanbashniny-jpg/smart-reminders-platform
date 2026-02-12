@@ -107,3 +107,22 @@ npm run dev
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+
+## 9) إعداد قواعد الفروع (GitHub Branch Ruleset)
+إذا ظهر لك في GitHub طلب تفعيل حماية الفروع، استخدم الإعدادات التالية على فرع `main`:
+
+- **Require a pull request before merging** ✅
+- **Require linear history** ✅
+- **Block force pushes** ✅
+- **Restrict deletions** ✅
+- **Require status checks to pass** ✅ (بعد تفعيل CI checks)
+- **Require signed commits** (اختياري حسب سياسة الفريق)
+
+خطوات سريعة:
+1. ادخل: `Settings > Rulesets > New branch ruleset`.
+2. في **Target branches** اختر الفرع `main`.
+3. فعّل القواعد أعلاه.
+4. أضف نفسك/المدراء فقط في **Bypass list** إذا احتجت صلاحيات طوارئ.
+
+> الهدف: منع التعديل المباشر على `main` وفرض المراجعة عبر Pull Request.
+
