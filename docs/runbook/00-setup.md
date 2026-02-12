@@ -88,3 +88,22 @@ npm run dev
 - من **Authentication > Users** أنشئ مستخدمين اختباريين.
 - أضف لكل مستخدم سجلًا مقابلًا في جدول `public.profiles` مع `department_id` و`role_code` صحيحين.
 - اختبر RLS عبر SQL Editor باستخدام `set local role authenticated;` و JWT Claims أو من خلال التطبيق لاحقًا.
+
+
+## 8) إعداد روابط Supabase Auth للتطوير المحلي
+من لوحة Supabase:
+- **Authentication > URL Configuration**
+- اضبط **Site URL** إلى:
+  - `http://localhost:3000`
+- أضف **Redirect URLs** التالية (على الأقل):
+  - `http://localhost:3000`
+  - `http://localhost:3000/login`
+  - `http://127.0.0.1:3000`
+  - `http://127.0.0.1:3000/login`
+
+> حتى مع تسجيل الدخول بالبريد/كلمة المرور، ضبط هذه الروابط مبكرًا يمنع مشاكل إعادة التوجيه لاحقًا عند إضافة OAuth أو روابط magic link.
+
+وتأكد أن ملف `apps/web/.env.local` يحتوي:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`

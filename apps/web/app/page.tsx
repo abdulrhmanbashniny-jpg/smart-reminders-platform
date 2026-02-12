@@ -1,4 +1,9 @@
-export default function Home() {
+import Link from 'next/link';
+import { requireUser } from '../lib/server/auth';
+
+export default async function Home() {
+  await requireUser();
+
   return (
     <section className="card">
       <h1>منصة التذكيرات الذكية</h1>
@@ -9,7 +14,12 @@ export default function Home() {
         <li>✅ Approvals Inbox (قريبًا)</li>
         <li>✅ Templates & Policies (قريبًا)</li>
       </ul>
-      <p className="hint">التوثيق: افتح مجلد <code>/docs</code> داخل المستودع.</p>
+      <p>
+        جرّب صفحة <Link href="/me">/me</Link> لمراجعة الصلاحية والقسم الحاليين.
+      </p>
+      <p className="hint">
+        التوثيق: افتح مجلد <code>/docs</code> داخل المستودع.
+      </p>
     </section>
   );
 }
