@@ -231,8 +231,18 @@ set search_path = public
 as $$
   select
     public.is_gm_or_admin()
-    or auth.uid() = target_requested_by
-    or auth.uid() = target_assigned_to
+    or (
+      exists (
+        select 1
+        from public.profiles p
+        where p.user_id = auth.uid()
+          and p.is_active = true
+      )
+      and (
+        auth.uid() = target_requested_by
+        or auth.uid() = target_assigned_to
+      )
+    )
     or (
       public.current_user_role() in ('supervisor', 'dept_manager')
       and public.current_user_department_id() = item_department_id
